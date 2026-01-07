@@ -19,10 +19,11 @@ export type ArtifactType =
   | "reframe"
   | "constraint_exposure"
   | "assumption_surface"
-  | "decision_fog_reduction";
+  | "decision_fog_reduction"
+  | "pattern_insight";
 
 /**
- * Represents a single cognitive artifact returned to the user.
+ * Represents a single, situational cognitive artifact.
  */
 export interface CognitiveArtifact {
   /**
@@ -41,18 +42,57 @@ export interface CognitiveArtifact {
   type: ArtifactType;
 
   /**
-   * Confidence score indicating how strongly the system
-   * believes this artifact reflects the user's bottleneck.
-   *
-   * This is epistemic confidence, not correctness.
+   * Epistemic confidence (not correctness).
    */
   confidence: number;
 
   /**
    * Whether this artifact is safe to persist as memory.
-   * Some artifacts are situational and should not shape long-term state.
+   * Situational artifacts are usually NOT persistable.
    */
   persistable: boolean;
+
+  /**
+   * ISO timestamp of artifact creation.
+   */
+  createdAt: string;
+}
+
+/**
+ * Represents a structural, longitudinal cognitive pattern.
+ * These are rare, high-confidence, and always persistable.
+ */
+export interface PatternArtifact {
+  /**
+   * Structural insight derived from repeated cognition.
+   * Still ONE sentence. Still declarative.
+   */
+  content: string;
+
+  /**
+   * Always a pattern insight.
+   */
+  type: "pattern_insight";
+
+  /**
+   * Pattern artifacts must meet a higher confidence bar.
+   */
+  confidence: number;
+
+  /**
+   * Pattern artifacts are always persistable.
+   */
+  persistable: true;
+
+  /**
+   * Number of observed occurrences supporting this pattern.
+   */
+  occurrences: number;
+
+  /**
+   * Bottleneck category this pattern represents.
+   */
+  bottleneckType: string;
 
   /**
    * ISO timestamp of artifact creation.
@@ -85,12 +125,9 @@ export interface ArtifactMetadata {
 /**
  * Complete response returned from the cognition engine.
  * This is what the API returns to the frontend.
+ *
+ * Union enforces explicit handling of pattern escalation.
  */
-export interface ArtifactResponse {
-  artifact: CognitiveArtifact;
-
-  /**
-   * Metadata is optional and stripped in most production responses.
-   */
-  metadata?: ArtifactMetadata;
-}
+export type ArtifactResponse =
+  | { artifact: CognitiveArtifact; metadata?: ArtifactMetadata }
+  | { artifact: PatternArtifact; metadata?: ArtifactMetadata };

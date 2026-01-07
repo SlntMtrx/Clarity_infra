@@ -2,12 +2,16 @@ import express from "express";
 import bodyParser from "body-parser";
 
 import { clarify } from "./api/clarify";
+import { thinkHandler } from "./api/thinkHandler";
 
 const app = express();
 const PORT = 3000;
 
 app.use(bodyParser.json());
 
+/**
+ * Existing clarify endpoint (UNCHANGED)
+ */
 app.post("/clarify", async (req, res) => {
   try {
     const result = await clarify({
@@ -23,10 +27,12 @@ app.post("/clarify", async (req, res) => {
   }
 });
 
+/**
+ * Phase 4 cognition endpoint (NEW)
+ */
+app.post("/api/think", thinkHandler);
+
 app.listen(PORT, () => {
   console.log(`Clarity server running on http://localhost:${PORT}`);
-});
-app.get("/", (_req, res) => {
-  res.send("Clarity Infrastructure is running.");
-});
-
+}
+);

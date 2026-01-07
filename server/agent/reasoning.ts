@@ -1,4 +1,4 @@
-import type { AgentState } from "./state";
+import type { AgentRuntimeState } from "./state";
 import type { Interpretation } from "../../shared/types/Interpretation";
 
 export type AgentDecision =
@@ -7,7 +7,7 @@ export type AgentDecision =
   | { type: "ESCALATE_PATTERN" };
 
 export function decideNextAction(
-  state: AgentState,
+  state: AgentRuntimeState,
   interpretation: Interpretation
 ): AgentDecision {
   // Absolute safety stop
@@ -18,18 +18,14 @@ export function decideNextAction(
     };
   }
 
-  // If the same bottleneck keeps repeating, escalate
+  // Escalate if same bottleneck repeats with high confidence
   if (
     state.lastBottleneck === interpretation.primaryBottleneck.type &&
     state.patternConfidence > 0.75
   ) {
-    return {
-      type: "ESCALATE_PATTERN",
-    };
+    return { type: "ESCALATE_PATTERN" };
   }
 
   // Default: allow a single clarification
-  return {
-    type: "CLARIFY_ONCE",
-  };
+  return { type: "CLARIFY_ONCE" };
 }

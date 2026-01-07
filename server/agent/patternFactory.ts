@@ -3,7 +3,7 @@ import type { PatternArtifact, PatternType } from "../../shared/types/PatternArt
 
 export function createPatternArtifact(
   interpretation: Interpretation,
-  previousOccurrences: number
+  previousPattern?: PatternArtifact
 ): PatternArtifact {
   const now = new Date().toISOString();
 
@@ -11,13 +11,19 @@ export function createPatternArtifact(
     interpretation.primaryBottleneck.type
   );
 
+  const previousOccurrences = previousPattern
+    ? previousPattern.occurrences
+    : 0;
+
   return {
     id: `pattern_${patternType}`,
     summary: buildPatternSummary(patternType),
     patternType,
     confidence: interpretation.primaryBottleneck.confidence,
     occurrences: previousOccurrences + 1,
-    firstDetectedAt: now,
+    firstDetectedAt: previousPattern
+      ? previousPattern.firstDetectedAt
+      : now,
     lastDetectedAt: now,
   };
 }
